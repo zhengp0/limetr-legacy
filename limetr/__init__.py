@@ -375,7 +375,7 @@ class LimeTr:
         elif self.std_flag == 2:
             d = -DR**2 + D.invDiag()
             if self.use_trimming:
-                v = np.repeat(delta[0], self.N)
+                v = np.repeat(delta, self.n)
                 d *= self.w*(v**(self.w - 1.0))
             g_delta = 0.5*(np.add.reduceat(d, self.idx_split))
 
