@@ -391,7 +391,7 @@ class LimeTr:
 
     def objectiveTrimming(self, w):
         t = (self.Z**2).dot(self.gamma)
-        r = self.Y - self.F(self.beta)
+        r = self.Y - self.X(self.beta)
         v = self.V
         d = v + t
 
@@ -413,7 +413,7 @@ class LimeTr:
             return g
 
         t = (self.Z**2).dot(self.gamma)
-        r = (self.Y - self.F(self.beta))**2
+        r = (self.Y - self.X(self.beta))**2
         v = self.V
         d = v + t
 
@@ -502,7 +502,7 @@ class LimeTr:
             print('Please fit the model first.')
             return None
 
-        R = self.Y - self.F(self.beta)
+        R = self.Y - self.X(self.beta)
         r = np.split(R, np.cumsum(self.n)[:-1])
         z = np.split(self.Z, np.cumsum(self.n)[:-1], axis=0)
 
@@ -521,7 +521,7 @@ class LimeTr:
              for i in range(self.m)]
         U = np.hstack(u)
 
-        self.Y = self.F(beta_t) + U
+        self.Y = self.X(beta_t) + U
 
         if sim_prior:
             if self.use_gprior:
