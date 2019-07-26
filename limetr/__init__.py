@@ -6,7 +6,7 @@ from limetr import utils
 
 
 class LimeTr:
-    def __init__(self, n, k_beta, k_gamma, Y, F, JF, Z,
+    def __init__(self, n, k_beta, k_gamma, Y, X, XT, Z,
                  S=None, share_obs_std=False,
                  C=None, JC=None, c=None,
                  H=None, JH=None, h=None,
@@ -25,10 +25,10 @@ class LimeTr:
             dimension of gamma
         Y : ndarray
             study observations
-        F : function
-            return the predict observations given beta
-        JF : function
-            return the jacobian function of F
+        X : function
+            covariates matrix-vector multiplication for the fixed effects
+        XT : function
+            covariates matrix-trans-vector multiplication for the fixed effects
         Z : ndarray
             covariates matrix for the random effect
         S : optional, ndarray
@@ -61,8 +61,8 @@ class LimeTr:
 
         # pass in the data
         self.Y = Y
-        self.F = F
-        self.JF = JF
+        self.X = X
+        self.XT = XT
         self.Z = Z
         self.S = S
         if self.std_flag == 0:
@@ -254,7 +254,7 @@ class LimeTr:
         if self.use_trimming:
             sqrt_w = np.sqrt(self.w)
             sqrt_W = sqrt_w.reshape(self.N, 1)
-            F_beta = self.F(beta)*sqrt_w
+            F_beta = self.X(beta)*sqrt_w
             Y = self.Y*sqrt_w
             Z = self.Z*sqrt_W
             if self.std_flag == 0:
@@ -264,7 +264,7 @@ class LimeTr:
             elif self.std_flag == 2:
                 V = np.repeat(delta, self.n)**self.w
         else:
-            F_beta = self.F(beta)
+            F_beta = self.X(beta)
             Y = self.Y
             Z = self.Z
             if self.std_flag == 0:
@@ -325,8 +325,7 @@ class LimeTr:
         if self.use_trimming:
             sqrt_w = np.sqrt(self.w)
             sqrt_W = sqrt_w.reshape(self.N, 1)
-            F_beta = self.F(beta)*sqrt_w
-            JF_beta = self.JF(beta)*sqrt_W
+            F_beta = self.X(beta)*sqrt_w
             Y = self.Y*sqrt_w
             Z = self.Z*sqrt_W
             if self.std_flag == 0:
@@ -336,8 +335,7 @@ class LimeTr:
             elif self.std_flag == 2:
                 V = np.repeat(delta, self.n)**self.w
         else:
-            F_beta = self.F(beta)
-            JF_beta = self.JF(beta)
+            F_beta = self.X(beta)
             Y = self.Y
             Z = self.Z
             if self.std_flag == 0:
@@ -353,7 +351,10 @@ class LimeTr:
 
         # gradient for beta
         DR = D.invDot(R)
-        g_beta = -JF_beta.T.dot(DR)
+        if self.use_trimming:
+            g_beta = -self.XT(sqrt_w*DR)
+        else:
+            g_beta = -self.XT(DR)
 
         # gradient for gamma
         DZ = D.invDot(Z)
@@ -571,11 +572,11 @@ class LimeTr:
 
         Y = X.dot(beta_t) + U + E
 
-        def F(beta, X=X):
+        def X_func(beta, X=X):
             return X.dot(beta)
 
-        def JF(beta, X=X):
-            return X
+        def XT_func(beta, X=X):
+            return X.T.dot(beta)
 
         # constraints, regularizer and priors
         if use_constraints:
@@ -622,7 +623,7 @@ class LimeTr:
         if not know_obs_std:
             S = None
 
-        return cls(n, k_beta, k_gamma, Y, F, JF, Z, S=S,
+        return cls(n, k_beta, k_gamma, Y, X_func, XT_func, Z, S=S,
                    C=C, JC=JC, c=c,
                    H=H, JH=JH, h=h,
                    uprior=uprior, gprior=gprior,
@@ -648,16 +649,16 @@ class LimeTr:
 
         weight = 0.1*np.linalg.norm(X.T.dot(Y), np.inf)
 
-        def F(beta):
+        def X_func(beta):
             return X.dot(beta)
 
-        def JF(beta):
-            return X
+        def XT_func(beta):
+            return X.T.dot(beta)
 
         uprior = np.array([[-np.inf]*k_beta + [0.0], [np.inf]*k_beta + [0.0]])
         lprior = np.array([[0.0]*k, [np.sqrt(2.0)/weight]*k])
 
-        return cls(n, k_beta, k_gamma, Y, F, JF, Z, S=S,
+        return cls(n, k_beta, k_gamma, Y, X_func, XT_func, Z, S=S,
                    uprior=uprior, lprior=lprior)
 
     @staticmethod
