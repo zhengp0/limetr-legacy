@@ -438,7 +438,7 @@ class LimeTr:
 
         return g
 
-    def optimize(self, x0=None, print_level=0, max_iter=100):
+    def optimize(self, x0=None, print_level=0, max_iter=100, tol=1e-8):
         if x0 is None:
             x0 = np.hstack((self.beta, self.gamma, self.delta))
             if self.use_lprior:
@@ -458,6 +458,7 @@ class LimeTr:
 
         opt_problem.addOption('print_level', print_level)
         opt_problem.addOption('max_iter', max_iter)
+        opt_problem.addOption('tol', tol)
 
         soln, info = opt_problem.solve(x0)
 
@@ -470,6 +471,7 @@ class LimeTr:
     def fitModel(self, x0=None,
                  inner_print_level=0,
                  inner_max_iter=20,
+                 inner_tol=1e-8,
                  outer_verbose=False,
                  outer_max_iter=100,
                  outer_step_size=1.0,
@@ -478,7 +480,8 @@ class LimeTr:
         if not self.use_trimming:
             self.optimize(x0=x0,
                           print_level=inner_print_level,
-                          max_iter=inner_max_iter*outer_max_iter)
+                          max_iter=inner_max_iter*outer_max_iter,
+                          tol=inner_tol)
 
             return self.beta, self.gamma, self.w
 
