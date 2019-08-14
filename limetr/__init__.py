@@ -447,8 +447,8 @@ class LimeTr:
         assert x0.size == self.k_total
 
         opt_problem = ipopt.problem(
-            n=self.k_total,
-            m=self.num_constraints,
+            n=int(self.k_total),
+            m=int(self.num_constraints),
             problem_obj=self,
             lb=self.uprior[0],
             ub=self.uprior[1],
