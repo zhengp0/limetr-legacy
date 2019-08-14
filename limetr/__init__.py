@@ -537,8 +537,9 @@ class LimeTr:
         u = np.random.randn(self.m, self.k_gamma)*np.sqrt(gamma_t)
         U = np.repeat(u, self.n, axis=0)
         ZU = np.sum(self.Z*U, axis=1)
+        E = np.random.randn(self.N)*self.S
 
-        self.Y = self.X(beta_t) + ZU
+        self.Y = self.X(beta_t) + ZU + E
 
         if sim_prior:
             if self.use_gprior:
