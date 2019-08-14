@@ -538,7 +538,7 @@ class LimeTr:
         U = np.repeat(u, self.n, axis=0)
         ZU = np.sum(self.Z*U, axis=1)
 
-        self.Y = self.F(beta_t) + ZU
+        self.Y = self.X(beta_t) + ZU
 
         if sim_prior:
             if self.use_gprior:
