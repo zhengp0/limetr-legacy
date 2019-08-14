@@ -534,13 +534,11 @@ class LimeTr:
 
     def simulateData(self, beta_t, gamma_t, sim_prior=True):
         # sample random effects and measurement error
-        varmat = utils.VarMat(self.V, self.Z, gamma_t, self.n)
-        D_blocks = varmat.varMatBlocks()
-        u = [np.random.multivariate_normal(np.zeros(self.n[i]), D_blocks[i])
-             for i in range(self.m)]
-        U = np.hstack(u)
+        u = np.random.randn(self.m, self.k_gamma)*np.sqrt(gamma_t)
+        U = np.repeat(u, self.n, axis=0)
+        ZU = np.sum(self.Z*U, axis=1)
 
-        self.Y = self.X(beta_t) + U
+        self.Y = self.F(beta_t) + ZU
 
         if sim_prior:
             if self.use_gprior:
