@@ -694,8 +694,13 @@ class LimeTr:
 
         beta_t = lt.beta.copy()
         gamma_t = lt.gamma.copy()
+        delta_t = lt.delta.copy()
 
+        # fix gamma and delta
         lt_copy = deepcopy(lt)
+
+        lt_copy.uprior[:, lt.idx_gamma] = np.vstack((gamma_t, gamma_t))
+        lt_copy.uprior[:, lt.idx_delta] = np.vstack((delta_t, delta_t))
 
         for i in range(sample_size):
             lt_copy.simulateData(beta_t, gamma_t)
