@@ -4,7 +4,7 @@ from numpy.distutils.core import Extension
 # fortran extension module
 ext = Extension(name='limetr.special_mat',
                 sources=['limetr/special_mat.f90'],
-                library_dirs=['/usr/local/lib'],
+                library_dirs=['/ihme/code/forecasting/env/pletcm36/lib'],
                 libraries=['lapack', 'blas'])
 
 setup(name='limetr',
