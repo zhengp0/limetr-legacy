@@ -1,3 +1,4 @@
+import os
 from numpy.distutils.core import setup
 from numpy.distutils.core import Extension
 
