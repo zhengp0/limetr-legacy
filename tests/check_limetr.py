@@ -22,7 +22,7 @@ fun_list = [
     'limetr_gradient',
     'limetr_objectiveTrimming',
     'limetr_gradientTrimming',
-    'limetr_lasso'
+    # 'limetr_lasso'
 ]
 
 error_count = 0
