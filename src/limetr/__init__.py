@@ -521,11 +521,24 @@ class LimeTr:
             print('Please fit the model first.')
             return None
 
+        if self.std_flag == 0:
+            S = self.S
+        elif self.std_flag == 1:
+            S = np.sqrt(np.repeat(self.delta[0], self.N))
+        elif self.std_flag == 2:
+            S = np.sqrt(np.repeat(self.delta, self.n))
+        iV = 1.0/S**2
+        iVZ = self.Z*iV.reshape(iV.size, 1)
+        igamma = 1.0/self.gamma
+
         R = self.Y - self.X(self.beta)
         r = np.split(R, np.cumsum(self.n)[:-1])
         z = np.split(self.Z, np.cumsum(self.n)[:-1], axis=0)
+        ivz = np.split(iVZ, np.cumsum(self.n)[:-1], axis=0)
+        
 
-        u = [np.linalg.solve(z[i].T.dot(z[i]), z[i].T.dot(r[i]))
+        u = [np.linalg.solve(ivz[i].T.dot(z[i]) + np.diag(igamma),
+                             ivz[i].T.dot(r[i]))
              for i in range(self.m)]
 
         self.u = np.vstack(u)
