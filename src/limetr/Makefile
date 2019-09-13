@@ -3,7 +3,7 @@
 .PHONY: clean
 
 special_mat: special_mat.f90
-	f2py -c -m special_mat special_mat.f90 -L/usr/local/lib -llapack -lblas
+	f2py -c -m special_mat special_mat.f90 -L$(CONDA_PREFIX)/lib -llapack -lblas
 
 clean:
 	find . -name '__pycache__' | xargs rm -rf
