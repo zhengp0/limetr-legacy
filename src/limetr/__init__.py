@@ -442,7 +442,8 @@ class LimeTr:
 
         return g
 
-    def optimize(self, x0=None, print_level=0, max_iter=100, tol=1e-8):
+    def optimize(self, x0=None, print_level=0, max_iter=100, tol=1e-8,
+                 acceptable_tol=1e-6):
         if x0 is None:
             x0 = np.hstack((self.beta, self.gamma, self.delta))
             if self.use_lprior:
@@ -463,6 +464,7 @@ class LimeTr:
         opt_problem.addOption('print_level', print_level)
         opt_problem.addOption('max_iter', max_iter)
         opt_problem.addOption('tol', tol)
+        opt_problem.addOption('acceptable_tol', acceptable_tol)
 
         soln, info = opt_problem.solve(x0)
 
@@ -476,6 +478,7 @@ class LimeTr:
                  inner_print_level=0,
                  inner_max_iter=20,
                  inner_tol=1e-8,
+                 inner_acceptable_tol=1e-6,
                  outer_verbose=False,
                  outer_max_iter=100,
                  outer_step_size=1.0,
@@ -485,7 +488,8 @@ class LimeTr:
             self.optimize(x0=x0,
                           print_level=inner_print_level,
                           max_iter=inner_max_iter*outer_max_iter,
-                          tol=inner_tol)
+                          tol=inner_tol,
+                          acceptable_tol=inner_acceptable_tol)
 
             return self.beta, self.gamma, self.w
 
@@ -497,7 +501,9 @@ class LimeTr:
         while err >= outer_tol:
             self.optimize(x0=self.soln,
                           print_level=inner_print_level,
-                          max_iter=inner_max_iter)
+                          max_iter=inner_max_iter,
+                          tol=inner_tol,
+                          acceptable_tol=inner_acceptable_tol)
             w_new = utils.projCappedSimplex(
                         self.w - outer_step_size*self.gradientTrimming(self.w),
                         self.num_inliers)
