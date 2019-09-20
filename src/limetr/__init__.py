@@ -249,6 +249,8 @@ class LimeTr:
         beta = x[self.idx_beta]
         gamma = x[self.idx_gamma]
         delta = x[self.idx_delta]
+        if not np.any(np.iscomplex(gamma)):
+            gamma[gamma <= 0.0] = 0.0
 
         # trimming option
         if self.use_trimming:
@@ -320,6 +322,8 @@ class LimeTr:
         beta = x[self.idx_beta]
         gamma = x[self.idx_gamma]
         delta = x[self.idx_delta]
+        if not np.any(np.iscomplex(gamma)):
+            gamma[gamma <= 0.0] = 0.0
 
         # trimming option
         if self.use_trimming:
