@@ -6,7 +6,8 @@ noisy data. This specific branch is created to reproduce the results in the
 
 ## Installing
 This packages require [conda](https://docs.conda.io/en/latest/) python
-installation.
+installation. For more information please check
+[here](https://docs.conda.io/projects/conda/en/latest/user-guide/install/).
 After cloning the repository change to the `paper` branch.
 ```
 git clone https://github.com/zhengp0/limetr.git
@@ -24,7 +25,8 @@ It will check if the following packages are installed,
 and install `limetr`.
 
 ## Simple Example
-The general mathematical model can be found in the paper.
+The general mathematical model can be found in the
+[paper](https://arxiv.org/abs/1909.10700).
 In order to run `limetr`, you need to specify,
 * model for fixed-effects,
 * model for random-effects,
