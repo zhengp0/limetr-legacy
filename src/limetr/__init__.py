@@ -499,7 +499,9 @@ class LimeTr:
                           print_level=inner_print_level,
                           max_iter=inner_max_iter*outer_max_iter,
                           tol=inner_tol,
-                          acceptable_tol=inner_acceptable_tol)
+                          acceptable_tol=inner_acceptable_tol,
+                          nlp_scaling_method=inner_nlp_scaling_method,
+                          nlp_scaling_min_value=inner_nlp_scaling_min_value)
 
             return self.beta, self.gamma, self.w
 
