@@ -445,7 +445,7 @@ class LimeTr:
     def optimize(self, x0=None, print_level=0, max_iter=100, tol=1e-8,
                  acceptable_tol=1e-6,
                  nlp_scaling_method=None,
-                 nlp_scaling_mean_value=None):
+                 nlp_scaling_min_value=None):
         if x0 is None:
             x0 = np.hstack((self.beta, self.gamma, self.delta))
             if self.use_lprior:
@@ -470,9 +470,9 @@ class LimeTr:
         if nlp_scaling_method is not None:
             opt_problem.addOption('nlp_scaling_method',
                                   nlp_scaling_method)
-        if nlp_scaling_mean_value is not None:
-            opt_problem.addOption('nlp_scaling_mean_value',
-                                  nlp_scaling_mean_value)
+        if nlp_scaling_min_value is not None:
+            opt_problem.addOption('nlp_scaling_min_value',
+                                  nlp_scaling_min_value)
 
         soln, info = opt_problem.solve(x0)
 
@@ -488,7 +488,7 @@ class LimeTr:
                  inner_tol=1e-8,
                  inner_acceptable_tol=1e-6,
                  inner_nlp_scaling_method=None,
-                 inner_nlp_scaling_mean_value=None,
+                 inner_nlp_scaling_min_value=None,
                  outer_verbose=False,
                  outer_max_iter=100,
                  outer_step_size=1.0,
@@ -515,7 +515,7 @@ class LimeTr:
                           tol=inner_tol,
                           acceptable_tol=inner_acceptable_tol,
                           nlp_scaling_method=inner_nlp_scaling_method,
-                          nlp_scaling_mean_value=inner_nlp_scaling_mean_value)
+                          nlp_scaling_min_value=inner_nlp_scaling_min_value)
             w_new = utils.projCappedSimplex(
                         self.w - outer_step_size*self.gradientTrimming(self.w),
                         self.num_inliers)
