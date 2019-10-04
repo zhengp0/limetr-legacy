@@ -304,6 +304,8 @@ class LimeTr:
         if self.use_lprior:
             val += self.lw.dot(x[self.k:])
 
+        val /= (self.N*self.inlier_percentage)
+
         return val
 
     def gradient(self, x, use_ad=False, eps=1e-12):
@@ -396,6 +398,8 @@ class LimeTr:
         # add gradient from the lprior
         if self.use_lprior:
             g = np.hstack((g, self.lw))
+
+        g /= (self.N*self.inlier_percentage)
 
         return g
 
