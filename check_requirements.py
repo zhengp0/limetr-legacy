@@ -40,10 +40,15 @@ def extract_lib(lib_name, des_lib_folder):
                              if required_lib_name in file_name]
         assert any(related_lib_files)
 
-        if not Path(os.path.join(des_lib_folder, required_lib_name)):
+        print(required_lib_name)
+        print(related_lib_files)
+
+        if not pathlib.Path(os.path.join(des_lib_folder,
+                                         required_lib_name)).exists():
             os.system(" ".join(["ln -s",
                                 related_lib_files[-1],
-                                required_lib_name]))
+                                os.path.join(des_lib_folder,
+                                             required_lib_name)]))
 
 
 for module_name, install_command in required_modules:
