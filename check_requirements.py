@@ -39,10 +39,6 @@ def extract_lib(lib_name, des_lib_folder):
         related_lib_files = [file_name for file_name in lib_files
                              if required_lib_name in file_name]
         assert any(related_lib_files)
-
-        print(required_lib_name)
-        print(related_lib_files)
-
         if not pathlib.Path(os.path.join(des_lib_folder,
                                          required_lib_name)).exists():
             os.system(" ".join(["ln -s",
