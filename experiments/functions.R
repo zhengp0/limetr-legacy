@@ -19,7 +19,7 @@ sim_data <- function(params, seed = NULL, add_outliers = FALSE) {
   
   # create random effects
   re <- rnorm(n = params$num_studies, sd = sqrt(params$gamma))
-  re_full <- rep(re, each = params$obs_per_study)
+  re <- rep(re, each = params$obs_per_study)
   
   # add outliers (optional)
   outliers <- rep(0, num_obs)
@@ -31,7 +31,7 @@ sim_data <- function(params, seed = NULL, add_outliers = FALSE) {
   }
   
   # combine observations
-  obs <- obs + obs_err + re_full + outliers
+  obs <- obs + obs_err + re + outliers
   
   data = data.frame(
     x1 = x1,
