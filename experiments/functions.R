@@ -16,10 +16,14 @@ sim_data <- function(params, seed = NULL, add_outliers = FALSE) {
   
   # create measurement errors
   obs_err <- rnorm(n = num_obs, sd = params$obs_sd)
+  obs_sd <- rep(params$obs_sd, num_obs)
   
   # create random effects
   re <- rnorm(n = params$num_studies, sd = sqrt(params$gamma))
   re <- rep(re, each = params$obs_per_study)
+
+  # create study_id
+  study_id <- rep(1:params$num_studies, each = params$obs_per_study)
   
   # add outliers (optional)
   outliers <- rep(0, num_obs)
@@ -36,7 +40,9 @@ sim_data <- function(params, seed = NULL, add_outliers = FALSE) {
   data = data.frame(
     x1 = x1,
     obs = obs,
-    re = re_full,
+    obs_sd = obs_sd,
+    re = re,
+    study_id = study_id,
     outliers = outliers
   )
   return(data)
