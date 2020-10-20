@@ -1,7 +1,7 @@
-# robumeta experiments
+# metaplus experiments
 # ==============================================================================
 rm(ls = list())
-library(robumeta)
+library(metaplus)
 library(readr)
 library(dplyr)
 
@@ -19,22 +19,26 @@ for (i in seq_len(num_trials)) {
 # define function
 # ------------------------------------------------------------------------------
 fit_data <- function(data, inlier_percentage = 0.8) {
-  # add variance
-  data <- mutate(data, obs_var = obs_sd^2)
   # fit model
-  fit <- robu(obs ~ x1,
-              studynum = study_id,
-              var.eff.size = obs_var,
-              data = data)
+  fit <- metaplus(
+    yi = obs,
+    sei = obs_sd,
+    mods = x1,
+    slab = study_id,
+    justfit = TRUE,
+    random = "t-dist",
+    data = data
+  )
   
   # extract information
   num_obs <- dim(data)[1]
   num_outliers <- round((1 - inlier_percentage)*num_obs)
   
   # extract results
-  beta0 <- fit$reg_table$b.r[1]
-  beta1 <- fit$reg_table$b.r[2]
-  gamma <- fit$mod_info$tau.sq
+  coef <- fit$fittedmodel@coef
+  beta0 <- coef[['muhat']]
+  beta1 <- coef[['x1']]
+  gamma <- coef[['tau2']]
   
   # extra outliers, problem: pred might not have random effects
   pred <- beta0 + beta1*data$x1
@@ -45,7 +49,7 @@ fit_data <- function(data, inlier_percentage = 0.8) {
   num_outliers_detected <- sum(data$outliers & outliers)
   
   data.frame(
-    model = "robumeta",
+    model = "metaplus",
     beta0 = beta0,
     beta1 = beta1,
     gamma = gamma,

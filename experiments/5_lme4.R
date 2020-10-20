@@ -1,7 +1,7 @@
-# robumeta experiments
+# lme4 experiments
 # ==============================================================================
 rm(ls = list())
-library(robumeta)
+library(lme4)
 library(readr)
 library(dplyr)
 
@@ -19,36 +19,35 @@ for (i in seq_len(num_trials)) {
 # define function
 # ------------------------------------------------------------------------------
 fit_data <- function(data, inlier_percentage = 0.8) {
-  # add variance
-  data <- mutate(data, obs_var = obs_sd^2)
   # fit model
-  fit <- robu(obs ~ x1,
-              studynum = study_id,
-              var.eff.size = obs_var,
-              data = data)
+  fit <- lmer(obs ~ x1 + (1 | study_id), data = data)
   
   # extract information
   num_obs <- dim(data)[1]
   num_outliers <- round((1 - inlier_percentage)*num_obs)
   
   # extract results
-  beta0 <- fit$reg_table$b.r[1]
-  beta1 <- fit$reg_table$b.r[2]
-  gamma <- fit$mod_info$tau.sq
+  result_summary <- summary(fit)
+  coefs <- result_summary$coefficients[, 1]
+  beta0 <- coefs[[1]]
+  beta1 <- coefs[[2]]
+  gamma <- attr(result_summary$varcor$study_id, "stddev")[[1]]^2
+  delta <- result_summary$sigma^2
   
   # extra outliers, problem: pred might not have random effects
   pred <- beta0 + beta1*data$x1
-  scaled_residual <- abs(data$obs - pred)/data$obs_sd
+  scaled_residual <- abs(data$obs - pred)
   outliers <- rep(0, dim(data)[1])
   sort_result <- sort(scaled_residual, decreasing = TRUE, index.return = TRUE)
   outliers[sort_result$ix][1:num_outliers] <- 1
   num_outliers_detected <- sum(data$outliers & outliers)
   
   data.frame(
-    model = "robumeta",
+    model = "lme4",
     beta0 = beta0,
     beta1 = beta1,
     gamma = gamma,
+    delta = delta,
     true_outlier_detected = num_outliers_detected,
     sample_size = num_obs
   )
@@ -65,7 +64,7 @@ df_results$data_id <- 1:num_trials
 
 # save results
 # ------------------------------------------------------------------------------
-results_file_path = paste(result_folder, "case_meta.csv", sep="/")
+results_file_path = paste(result_folder, "case_long.csv", sep="/")
 if (file.exists(results_file_path)) {
   prev_df_results <- read_csv(results_file_path)
   df_results <- rbind(prev_df_results, df_results)
