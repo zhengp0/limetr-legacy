@@ -1,36 +1,47 @@
-# metafor experiments
+# heavy experiments
 # ==============================================================================
 rm(list = ls())
-library(metafor)
+library(heavy)
 source("settings.R")
 source("functions.R")
 
-# load data --------------------------------------------------------------------
+# load data
+# ------------------------------------------------------------------------------
 dfs <- load_data(FOLDERS$data_folder, PARAMS$num_trials)
 
-# define function --------------------------------------------------------------
+# define function
+# ------------------------------------------------------------------------------
 fit_data <- function(data, inlier_percentage = 0.8) {
   # fit model
-  fit <- rma(yi = obs, sei = obs_sd, mods = ~x1, data = data)
+  fit <- heavyLme(
+    fixed = obs ~ x1,
+    random = ~ 1,
+    groups = ~ study_id,
+    data = data
+  )
   
   # extract information
   num_obs <- dim(data)[1]
   num_outliers <- round((1 - inlier_percentage)*num_obs)
   
   # extract results
-  beta0 <- fit$beta[1]
-  beta1 <- fit$beta[2]
-  gamma <- fit$tau2
+  coefs <- as.numeric(coef(fit))
+  beta0 <- coefs[[1]]
+  beta1 <- coefs[[2]]
+  gamma <- mean(fit$ranef[,1]^2)
+  delta <- NA_real_
   
   # extract outliers
-  outliers <- pick_outliers(data, beta0, beta1, num_outliers)
+  outliers <- pick_outliers(data, beta0, beta1, num_outliers,
+                            scale_resi = FALSE)
   num_outliers_detected <- sum(data$outliers & outliers)
   
   data.frame(
-    model = "metafor",
+    model = "heavy",
     beta0 = beta0,
     beta1 = beta1,
     gamma = gamma,
+    delta = delta,
     true_outlier_detected = num_outliers_detected,
     sample_size = num_obs
   )
@@ -40,5 +51,5 @@ fit_data <- function(data, inlier_percentage = 0.8) {
 df_results <- get_results(dfs, fit_data)
 
 # save results -----------------------------------------------------------------
-results_file_path <- paste(FOLDERS$results_folder, "case_meta.csv", sep="/")
+results_file_path <- paste(FOLDERS$results_folder, "case_long.csv", sep="/")
 save_results(df_results, results_file_path)

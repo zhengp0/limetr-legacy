@@ -1,5 +1,6 @@
 # Utility functions
 # ==============================================================================
+library(readr)
 
 create_dir <- function(path) {
   if (!file.exists(path)) dir.create(path)
@@ -46,4 +47,42 @@ sim_data <- function(params, seed = NULL, add_outliers = FALSE) {
     outliers = outliers
   )
   return(data)
+}
+
+load_data <- function(data_folder, num_trials) {
+  dfs <- list()
+  for (i in seq_len(num_trials)) {
+    dfs[[i]] <- read_csv(paste0(data_folder, "/data_", i, ".csv"))
+  }
+  dfs
+}
+
+pick_outliers <- function(data, beta0, beta1, num_outliers, scale_resi = T) {
+  pred <- beta0 + data$x1*beta1
+  resi <- data$obs - pred
+  if (scale_resi) {
+    resi <- resi/data$obs_sd
+  }
+  outliers <- rep(0, dim(data)[1])
+  sort_result <- sort(resi, decreasing = TRUE, index.return = TRUE)
+  outliers[sort_result$ix][1:num_outliers] <- 1
+  outliers
+}
+
+get_results <- function(dfs, fit_data) {
+  results <- list()
+  for (i in seq_along(dfs)) {
+    results[[i]] <- fit_data(dfs[[1]])
+  }
+  df_results <- do.call(rbind, results)
+  df_results$data_id <- seq_along(dfs)
+  df_results
+}
+
+save_results <- function(df_results, results_file_path) {
+  if (file.exists(results_file_path)) {
+    prev_df_results <- read_csv(results_file_path)
+    df_results <- rbind(prev_df_results, df_results)
+  }
+  write_csv(df_results, results_file_path)
 }
