@@ -18,5 +18,5 @@ setup(name='limetr',
       packages=['limetr'],
       package_dir={'limetr': 'src/limetr'},
       ext_modules=[ext],
-      install_requires=['numpy', 'scipy', 'ipopt'],
+      install_requires=['numpy', 'scipy', 'ipopt', 'spmat'],
       zip_safe=False)
